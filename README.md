@@ -1,32 +1,30 @@
-# Windows Audio Tester
+<p align="center">
+  <img src="interface.png" alt="Windows Audio Tester" width="700" />
+</p>
 
-A lightweight desktop application for diagnosing audio output issues on Windows 10. Test individual speaker channels, switch between output devices, and quickly identify problems like a dead left/right speaker or a misconfigured surround setup — all from a clean dark-themed GUI.
+<h1 align="center">Windows Audio Tester</h1>
+
+<p align="center">
+  <strong>Diagnose &amp; fix speaker channel issues on Windows — with a single Python file.</strong><br>
+  Test individual speakers, adjust per-channel Windows volume, and see live output levels<br>in a neon-themed diagnostic interface.
+</p>
+
+<p align="center">
+  <a href="#installation">Install</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="#usage">Usage</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="#features">Features</a>&nbsp;&nbsp;·&nbsp;&nbsp;<a href="#diagnosing-common-problems">Troubleshooting</a>
+</p>
 
 ---
 
 ## Features
 
-- **Per-channel testing** — click any speaker button to play a tone through that channel only
+- **Per-channel speaker testing** — click any speaker button to play a frequency sweep through that channel only, with pulsing neon animation while active
 - **Sequential sweep** — "Test All Speakers" cycles through every channel in order with synchronized visual highlighting
+- **Windows channel level control** — per-channel volume sliders that write directly to the Windows Core Audio API — changes persist after closing the app
+- **Live output visualizer** — animated frequency-bar meters per channel show real-time audio output levels
 - **Multiple channel configurations** — Stereo 2.0, 2.1, Surround 5.1, and Surround 7.1
 - **Device switching** — enumerate all Windows output devices and test any of them on the fly
-- **Frequency sweep tones** — each test plays a 200 Hz → 1 kHz sweep so you can hear it clearly at any volume
-- **Volume control** — adjustable slider, defaults to 70%
-- **Activity indicators** — LED-style dots on each speaker button light up when that channel is playing
-- **Status bar** — live feedback showing device name, what is playing, and any errors
-
----
-
-## Requirements
-
-| Requirement | Version |
-|---|---|
-| Windows | 10 or later |
-| Python | 3.10+ |
-| sounddevice | 0.5+ |
-| numpy | 1.24+ |
-
-> **tkinter** is included with the standard Python installation from python.org and the Microsoft Store.
+- **Equalize & reset** — one-click buttons to equalize all channels or reset them to 100%
+- **Single file, no build step** — just `python audio_tester.py`
 
 ---
 
@@ -34,22 +32,35 @@ A lightweight desktop application for diagnosing audio output issues on Windows 
 
 ### 1. Install Python
 
-Download from [python.org](https://www.python.org/downloads/) or the Microsoft Store. Make sure **"Add Python to PATH"** is checked during installation.
+Download from [python.org](https://www.python.org/downloads/) or the Microsoft Store (3.10+). Make sure **"Add Python to PATH"** is checked.
 
 ### 2. Install dependencies
 
 ```bash
-pip install sounddevice numpy
+pip install sounddevice numpy pycaw
 ```
 
-### 3. Clone or download this repository
+> `pycaw` is optional but recommended — it enables the per-channel Windows volume sliders and live output meters. Without it, speaker testing still works.
+
+### 3. Clone and run
 
 ```bash
-git clone https://github.com/your-username/winAudioTest.git
+git clone https://github.com/trezero/winAudioTest.git
 cd winAudioTest
+python audio_tester.py
 ```
 
-Or simply download `audio_tester.py` directly.
+---
+
+## Requirements
+
+| Dependency | Version | Purpose |
+|---|---|---|
+| **Python** | 3.10+ | Runtime |
+| **sounddevice** | 0.5+ | Audio playback via PortAudio |
+| **numpy** | 1.24+ | Tone generation |
+| **pycaw** | any | Windows Core Audio control (optional) |
+| **tkinter** | built-in | GUI (ships with Python) |
 
 ---
 
@@ -59,23 +70,20 @@ Or simply download `audio_tester.py` directly.
 python audio_tester.py
 ```
 
-### Step-by-step workflow
-
-1. **Select an output device** from the dropdown at the top-left. The app automatically pre-selects your Windows default device. Hit **↺ Refresh** if you plug in a new device while the app is open.
+1. **Select an output device** from the dropdown. The app auto-selects your Windows default. Hit **Refresh Devices** if you plug something in.
 
 2. **Choose a channel configuration** that matches your speaker setup:
-   - **Stereo (2.0)** — standard left/right speakers or headphones
-   - **2.1 (Stereo + Sub)** — stereo pair with a subwoofer
-   - **Surround 5.1** — front left/right, center, subwoofer, surround left/right
-   - **Surround 7.1** — all of the above plus rear left/right
+   - **Stereo (2.0)** — headphones or left/right speakers
+   - **2.1** — stereo + subwoofer
+   - **5.1 / 7.1** — full surround setups
 
-3. **Test individual speakers** by clicking their button in the speaker grid on the right. The button highlights red and its indicator dot turns teal while the tone plays. The test plays a 1.5-second frequency sweep (200–1000 Hz) through that channel only.
+3. **Click a speaker button** to test that channel. The button pulses neon blue and you'll hear a 1.5s frequency sweep (200–1000 Hz) on that channel only.
 
-4. **Test all speakers at once** with the **▶ Test All Speakers** button. Each speaker is tested in sequence (0.6 s each), and the corresponding button highlights as audio plays through it.
+4. **Test All Speakers** sweeps through every channel in sequence (0.6s each) with synchronized button highlighting.
 
-5. **Adjust volume** with the slider. This scales the output amplitude before sending to the device — it is independent of your Windows master volume.
+5. **Adjust channel levels** using the Windows Channel Levels sliders at the bottom. These write directly to the Windows audio engine — changes are permanent and survive app restarts and reboots.
 
-6. **Stop at any time** with the **■ Stop** button.
+6. **Equalize** or **Reset** channels with the utility buttons if levels are imbalanced.
 
 ---
 
@@ -83,31 +91,27 @@ python audio_tester.py
 
 ### Only hearing sound from one speaker
 
-1. Open the app and select **Stereo (2.0)**.
-2. Click **Left** — do you hear sound? Click **Right** — do you hear sound?
-3. If one is silent:
-   - Check the physical cable is fully seated in the correct port.
-   - Open **Windows Sound settings → Properties → Levels** and verify both channels are not muted.
-   - Run the Windows built-in speaker test: right-click the volume icon → *Sound settings → Test*.
-   - Try a different output device in the dropdown to rule out a driver issue.
+1. Select **Stereo (2.0)** and test **Left** then **Right** individually.
+2. Check the **Windows Channel Levels** sliders — if one is lower, drag it up.
+3. If a channel is still silent: check physical cables, Windows Sound settings (Levels tab), and try a different output device.
 
 ### Surround speakers not working
 
-1. Set Windows to output in the correct surround format: right-click the volume icon → *Sound settings → Device properties → Additional device properties → Configure*.
-2. Select the matching speaker setup (e.g. 5.1 or 7.1) in Windows and click **Test** to let Windows verify the configuration.
-3. Return to this app and test each channel individually to pinpoint which speaker is missing.
+1. Right-click the volume icon → *Sound settings → Device properties → Additional device properties → Configure* and select the correct speaker layout (5.1 / 7.1).
+2. Return to this app and test each channel to pinpoint which speaker is missing.
 
 ### No sound at all
 
-- Confirm the correct device is selected in the dropdown (not a disabled or virtual device).
-- Check that the volume slider is above 0% and that Windows system volume is not muted.
-- Click **↺ Refresh** — the device list may have changed since launch.
-- Check the status bar at the bottom for any playback error messages.
+- Verify the correct device is selected (not a virtual/disabled device).
+- Check that both the app volume slider and Windows system volume are above 0%.
+- Look at the status bar for error messages.
 
-### Wrong speaker plays the tone
+### One speaker is quieter
 
-- Your audio device's channel mapping may differ from the Windows convention. This is common with some USB DACs and HDMI outputs.
-- Try remapping channels in your device's driver/control panel or in Windows Spatial Sound settings.
+This is exactly what the app is built for:
+1. Test each channel and compare the visualizer bar levels.
+2. Use the **Windows Channel Levels** sliders to balance them.
+3. Click **Equalize Channels** to match all channels to the loudest one.
 
 ---
 
@@ -115,38 +119,42 @@ python audio_tester.py
 
 ```
 winAudioTest/
-├── audio_tester.py   # entire application — single file, no build step needed
+├── audio_tester.py   # entire application — single file
+├── interface.png     # screenshot
+├── LICENSE
 └── README.md
 ```
 
-### Key internals
+### Architecture
 
 | Component | Description |
 |---|---|
-| `CHANNEL_CONFIGS` | Dictionary defining all speaker layouts and their channel indices |
-| `generate_sweep()` | Generates a linear frequency sweep on a single channel of a multi-channel audio array |
-| `generate_all_channels()` | Concatenates short tones on each channel sequentially for the "Test All" sweep |
-| `SpeakerButton` | Custom `tk.Frame` subclass — button + LED indicator with hover/active states |
-| `AudioTesterApp` | Main `tk.Tk` window; manages device enumeration, playback threading, and UI state |
+| `WindowsAudioController` | Wraps pycaw for per-channel volume read/write and peak metering via Windows Core Audio |
+| `NeonRadio` | Custom Canvas-based radio button with neon-blue animated indicator |
+| `VisualizerBar` | Animated 12-bar frequency visualizer using Canvas |
+| `SpeakerButton` | Glass-panel speaker button with LED dot, pulse animation, and hover glow |
+| `AudioTesterApp` | Main Tk window — device enumeration, playback threading, UI state |
+| `generate_sweep()` | Creates a linear frequency sweep on a single channel |
+| `generate_all_channels()` | Concatenates short tones across all channels for sequential testing |
 
-Audio is generated with **numpy** as float32 PCM and played via **sounddevice** on a background daemon thread so the UI remains responsive. A 50 ms fade-in/fade-out window prevents audible clicks.
+Audio is generated with **numpy** as float32 PCM and played via **sounddevice** on a background daemon thread so the UI stays responsive. A 50ms fade-in/fade-out window prevents audible clicks.
 
 ---
 
 ## Customisation
 
-All visual constants are in the `COLORS` dict at the top of `audio_tester.py`. Playback behaviour can be tuned with:
+All colors are in the `C` dict at the top of `audio_tester.py`. Playback can be tuned with:
 
 ```python
-SAMPLE_RATE = 44100      # Hz
-TEST_DURATION = 1.5      # seconds per individual channel sweep
+SAMPLE_RATE = 44100       # Hz
+TEST_DURATION = 1.5       # seconds per individual channel sweep
 SWEEP_FREQS = (200, 1000) # Hz start/end for the frequency sweep
 ```
 
-To add a new channel configuration (e.g. a custom 4.0 quad setup), append an entry to `CHANNEL_CONFIGS` following the existing pattern — the UI will pick it up automatically.
+To add a channel config (e.g. quad 4.0), add an entry to `CHANNEL_CONFIGS` — the UI picks it up automatically.
 
 ---
 
 ## License
 
-MIT — free to use, modify, and distribute.
+[MIT](LICENSE) — free to use, modify, and distribute.
