@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cortex": {
+      "type": "http",
+      "url": "http://localhost:8051/mcp"
+    }
+  }
+}
